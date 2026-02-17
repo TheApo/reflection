@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#0a0a1a"/>
+  <rect x="2" y="2" width="28" height="28" rx="4" fill="none" stroke="#1e2d4a" stroke-width="1"/>
+  <!-- Mirror / -->
+  <line x1="8" y1="24" x2="24" y2="8" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Light ray in -->
+  <line x1="4" y1="16" x2="16" y2="16" stroke="#00ff88" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2.5 1.5"/>
+  <!-- Light ray reflected up -->
+  <line x1="16" y1="16" x2="16" y2="4" stroke="#00ff88" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2.5 1.5"/>
+</svg>
