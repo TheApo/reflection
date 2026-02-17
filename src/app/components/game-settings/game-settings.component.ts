@@ -1,10 +1,11 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { GameObjectType, OBJECT_LABELS, ALWAYS_ENABLED_TYPES, TRIANGLE_TYPES, BLOCK_TYPES, ABSORBER_TYPES } from '../../models/game-object.model';
+import { GameObjectType, ALWAYS_ENABLED_TYPES, TRIANGLE_TYPES, BLOCK_TYPES, ABSORBER_TYPES } from '../../models/game-object.model';
 import { GameSettings, getDefaultObjectCounts } from '../../models/game-state.model';
 import { GameStateService } from '../../services/game-state.service';
 import { LevelGeneratorService } from '../../services/level-generator.service';
+import { TranslationService } from '../../services/translation.service';
 
 interface ObjectCountConfig {
   type: GameObjectType;
@@ -28,7 +29,7 @@ interface ObjectCountConfig {
               <path d="M15 18l-6-6 6-6"/>
             </svg>
           </button>
-          <h1>Game Setup</h1>
+          <h1>{{ i18n.t().gameSetup }}</h1>
         </div>
       </div>
 
@@ -37,7 +38,7 @@ interface ObjectCountConfig {
         <!-- Grid Size -->
         <div class="setting-card">
           <label class="setting-label">
-            Grid Size
+            {{ i18n.t().gridSize }}
             <span class="setting-value">{{ gridSize() }} × {{ gridSize() }}</span>
           </label>
           <input type="range" [min]="5" [max]="15" [step]="1"
@@ -52,14 +53,14 @@ interface ObjectCountConfig {
 
         <!-- Toggles -->
         <div class="setting-card">
-          <h3 class="section-title">Optional Objects</h3>
+          <h3 class="section-title">{{ i18n.t().optionalObjects }}</h3>
 
           <div class="toggle-row">
             <div class="toggle-info">
               <svg viewBox="0 0 1 1" width="28" height="28">
                 <rect x="0.2" y="0.2" width="0.6" height="0.6" rx="0.06" fill="#b0bec5" />
               </svg>
-              <span>Block</span>
+              <span>{{ i18n.t().block }}</span>
             </div>
             <label class="toggle">
               <input type="checkbox"
@@ -74,7 +75,7 @@ interface ObjectCountConfig {
               <svg viewBox="0 0 1 1" width="28" height="28">
                 <polygon points="0.15,0.15 0.15,0.85 0.85,0.85" fill="#e040fb" fill-opacity="0.8" />
               </svg>
-              <span>Triangles</span>
+              <span>{{ i18n.t().triangles }}</span>
             </div>
             <label class="toggle">
               <input type="checkbox"
@@ -89,7 +90,7 @@ interface ObjectCountConfig {
               <svg viewBox="0 0 1 1" width="28" height="28">
                 <circle cx="0.5" cy="0.5" r="0.3" fill="#1a1a2e" stroke="#b0bec5" stroke-width="0.05" />
               </svg>
-              <span>Absorber</span>
+              <span>{{ i18n.t().absorber }}</span>
             </div>
             <label class="toggle">
               <input type="checkbox"
@@ -102,7 +103,7 @@ interface ObjectCountConfig {
 
         <!-- Object Counts -->
         <div class="setting-card">
-          <h3 class="section-title">Object Counts</h3>
+          <h3 class="section-title">{{ i18n.t().objectCounts }}</h3>
           @for (config of visibleObjectConfigs(); track config.type) {
             <div class="count-row">
               <span class="count-label">{{ config.label }}</span>
@@ -117,7 +118,7 @@ interface ObjectCountConfig {
           }
 
           <div class="total-row">
-            <span>Total objects</span>
+            <span>{{ i18n.t().totalObjects }}</span>
             <span class="total-value">{{ totalObjects() }}</span>
           </div>
         </div>
@@ -130,9 +131,9 @@ interface ObjectCountConfig {
         }
         <button class="start-btn" (click)="startGame()" [disabled]="isGenerating()">
           @if (isGenerating()) {
-            Generating...
+            {{ i18n.t().generating }}
           } @else {
-            Start Game
+            {{ i18n.t().startGame }}
           }
         </button>
       </div>
@@ -407,6 +408,7 @@ export class GameSettingsComponent {
   private router = inject(Router);
   private gameState = inject(GameStateService);
   private levelGenerator = inject(LevelGeneratorService);
+  i18n = inject(TranslationService);
 
   gridSize = signal(8);
   enableBlock = signal(true);
@@ -421,6 +423,7 @@ export class GameSettingsComponent {
   visibleObjectConfigs = computed<ObjectCountConfig[]>(() => {
     const counts = this.objectCounts();
     const size = this.gridSize();
+    const labels = this.i18n.t().objectLabels;
     const configs: ObjectCountConfig[] = [];
 
     // Always-enabled types (min enforced)
@@ -428,7 +431,7 @@ export class GameSettingsComponent {
       const min = (type === GameObjectType.Mirror45CW || type === GameObjectType.Mirror45CCW) ? 2 : 1;
       configs.push({
         type,
-        label: OBJECT_LABELS[type],
+        label: labels[type],
         count: counts[type] ?? 0,
         min,
         max: Math.floor(size * size * 0.1),
@@ -440,7 +443,7 @@ export class GameSettingsComponent {
       for (const type of BLOCK_TYPES) {
         configs.push({
           type,
-          label: OBJECT_LABELS[type],
+          label: labels[type],
           count: counts[type] ?? 0,
           min: 0,
           max: Math.max(1, Math.floor(size * size * 0.05)),
@@ -453,7 +456,7 @@ export class GameSettingsComponent {
       for (const type of TRIANGLE_TYPES) {
         configs.push({
           type,
-          label: OBJECT_LABELS[type],
+          label: labels[type],
           count: counts[type] ?? 0,
           min: 0,
           max: Math.max(1, Math.floor(size * size * 0.05)),
@@ -466,7 +469,7 @@ export class GameSettingsComponent {
       for (const type of ABSORBER_TYPES) {
         configs.push({
           type,
-          label: OBJECT_LABELS[type],
+          label: labels[type],
           count: counts[type] ?? 0,
           min: 0,
           max: Math.max(1, Math.floor(size * size * 0.05)),
@@ -527,7 +530,7 @@ export class GameSettingsComponent {
     setTimeout(() => {
       try {
         const puzzle = this.levelGenerator.generate(settings);
-        this.gameState.startGame(puzzle);
+        this.gameState.startGame(puzzle, settings);
         this.isGenerating.set(false);
         this.router.navigate(['/play']);
       } catch (e: any) {

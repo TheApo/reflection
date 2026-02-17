@@ -32,8 +32,8 @@ export function getDefaultObjectCounts(gridSize: number, enableBlock: boolean, e
   return {
     [GameObjectType.Mirror45CW]: Math.max(2, base + 1),
     [GameObjectType.Mirror45CCW]: Math.max(2, base + 1),
-    [GameObjectType.OneWayVertical]: Math.max(1, base),
-    [GameObjectType.OneWayHorizontal]: Math.max(1, base),
+    [GameObjectType.OneWayVertical]: 1,
+    [GameObjectType.OneWayHorizontal]: 1,
     [GameObjectType.Block]: enableBlock ? Math.max(1, Math.floor(base / 2)) : 0,
     [GameObjectType.TriangleBL]: enableTriangle ? 1 : 0,
     [GameObjectType.TriangleBR]: enableTriangle ? 1 : 0,

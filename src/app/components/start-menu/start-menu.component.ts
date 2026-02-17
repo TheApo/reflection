@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-start-menu',
@@ -9,8 +10,27 @@ import { Router } from '@angular/router';
       <div class="content">
         <!-- Title -->
         <div class="title-section">
-          <h1 class="title">Reflection</h1>
-          <p class="subtitle">A Light Puzzle Game</p>
+          <div class="title-row">
+            <h1 class="title">{{ i18n.t().title }}</h1>
+            <button class="lang-toggle" (click)="i18n.toggleLang()">
+              @if (i18n.lang() === 'en') {
+                <svg viewBox="0 0 60 30" width="28" height="14">
+                  <rect width="60" height="30" fill="#012169"/>
+                  <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+                  <path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" stroke-width="4"/>
+                  <path d="M30,0 V30 M0,15 H60" stroke="#fff" stroke-width="10"/>
+                  <path d="M30,0 V30 M0,15 H60" stroke="#C8102E" stroke-width="6"/>
+                </svg>
+              } @else {
+                <svg viewBox="0 0 5 3" width="28" height="17">
+                  <rect width="5" height="1" y="0" fill="#000"/>
+                  <rect width="5" height="1" y="1" fill="#DD0000"/>
+                  <rect width="5" height="1" y="2" fill="#FFCC00"/>
+                </svg>
+              }
+            </button>
+          </div>
+          <p class="subtitle">{{ i18n.t().subtitle }}</p>
         </div>
 
         <!-- Play button -->
@@ -18,15 +38,15 @@ import { Router } from '@angular/router';
           <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
             <path d="M8 5v14l11-7z"/>
           </svg>
-          Play
+          {{ i18n.t().play }}
         </button>
 
         <!-- Rules -->
         <div class="rules-section">
-          <h2 class="rules-title">How to Play</h2>
+          <h2 class="rules-title">{{ i18n.t().howToPlay }}</h2>
 
           <div class="rule-card intro-card">
-            <p class="rule-desc">Place objects on the grid so that light rays match the numbers on the edges.</p>
+            <p class="rule-desc">{{ i18n.t().introDesc }}</p>
           </div>
 
           <!-- 2-column grid for object explanations -->
@@ -41,8 +61,8 @@ import { Router } from '@angular/router';
                   <line x1="0.2" y1="0.2" x2="0.8" y2="0.8" stroke="#00d4ff" stroke-width="0.1" stroke-linecap="round" />
                 </svg>
               </div>
-              <p class="rule-text"><strong>45° Mirrors</strong></p>
-              <p class="rule-detail">Deflect light at 90°</p>
+              <p class="rule-text"><strong>{{ i18n.t().mirrors45 }}</strong></p>
+              <p class="rule-detail">{{ i18n.t().mirrors45Desc }}</p>
             </div>
 
             <!-- One-Way Mirrors -->
@@ -57,8 +77,8 @@ import { Router } from '@angular/router';
                   <line x1="0.15" y1="0.65" x2="0.85" y2="0.65" stroke="#ffa500" stroke-width="0.08" stroke-linecap="round" />
                 </svg>
               </div>
-              <p class="rule-text"><strong>One-Way Mirrors</strong></p>
-              <p class="rule-detail">Pass through one axis, reflect 180° on the other</p>
+              <p class="rule-text"><strong>{{ i18n.t().oneWayMirrors }}</strong></p>
+              <p class="rule-detail">{{ i18n.t().oneWayMirrorsDesc }}</p>
             </div>
 
             <!-- Block -->
@@ -68,8 +88,8 @@ import { Router } from '@angular/router';
                   <rect x="0.2" y="0.2" width="0.6" height="0.6" rx="0.06" fill="#b0bec5" />
                 </svg>
               </div>
-              <p class="rule-text"><strong>Block</strong></p>
-              <p class="rule-detail">Reflects light 180° from any direction</p>
+              <p class="rule-text"><strong>{{ i18n.t().block }}</strong></p>
+              <p class="rule-detail">{{ i18n.t().blockDesc }}</p>
             </div>
 
             <!-- Triangles - show all 4 -->
@@ -88,8 +108,8 @@ import { Router } from '@angular/router';
                   <polygon points="0.15,0.15 0.85,0.15 0.85,0.85" fill="#e040fb" fill-opacity="0.8" />
                 </svg>
               </div>
-              <p class="rule-text"><strong>Triangles</strong></p>
-              <p class="rule-detail">Reflect from 2 sides, pass through from 2 sides</p>
+              <p class="rule-text"><strong>{{ i18n.t().triangles }}</strong></p>
+              <p class="rule-detail">{{ i18n.t().trianglesDesc }}</p>
             </div>
           </div>
 
@@ -100,8 +120,8 @@ import { Router } from '@angular/router';
                 <circle cx="0.5" cy="0.5" r="0.3" fill="#1a1a2e" stroke="#b0bec5" stroke-width="0.05" />
               </svg>
               <div>
-                <p class="rule-text"><strong>Absorber</strong></p>
-                <p class="rule-detail">Absorbs light completely</p>
+                <p class="rule-text"><strong>{{ i18n.t().absorber }}</strong></p>
+                <p class="rule-detail">{{ i18n.t().absorberDesc }}</p>
               </div>
             </div>
           </div>
@@ -110,15 +130,15 @@ import { Router } from '@angular/router';
           <div class="rule-card edge-legend">
             <div class="legend-row">
               <span class="legend-badge green">8</span>
-              <span>Light passes through (exits elsewhere)</span>
+              <span>{{ i18n.t().legendGreen }}</span>
             </div>
             <div class="legend-row">
               <span class="legend-badge yellow">4</span>
-              <span>Light reflects back (exits at entry)</span>
+              <span>{{ i18n.t().legendYellow }}</span>
             </div>
             <div class="legend-row">
               <span class="legend-badge gray">3</span>
-              <span>Light is absorbed</span>
+              <span>{{ i18n.t().legendGray }}</span>
             </div>
           </div>
         </div>
@@ -141,6 +161,35 @@ import { Router } from '@angular/router';
       margin: 0 auto;
       padding: 40px 20px 60px;
       animation: fadeIn 0.5s ease;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .lang-toggle {
+      position: absolute;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      padding: 6px 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      svg {
+        display: block;
+        border-radius: 2px;
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
     }
 
     @keyframes fadeIn {
@@ -282,6 +331,7 @@ import { Router } from '@angular/router';
 })
 export class StartMenuComponent {
   private router = inject(Router);
+  i18n = inject(TranslationService);
 
   onPlay(): void {
     this.router.navigate(['/settings']);

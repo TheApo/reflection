@@ -17,7 +17,7 @@ import { ObjectIconComponent } from '../object-icon/object-icon.component';
       (mouseleave)="cellHover.emit(false)" />
 
     @if (cellContent(); as obj) {
-      <svg:g appObjectIcon [type]="obj" />
+      <svg:g appObjectIcon [type]="obj" style="pointer-events: none;" />
     }
 
     <!-- Ghost preview of selected object -->

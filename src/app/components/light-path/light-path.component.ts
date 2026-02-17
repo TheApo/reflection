@@ -1,11 +1,15 @@
 import { Component, input, computed } from '@angular/core';
-import { TraceResult } from '../../models/light-ray.model';
+import { ClueStatus } from '../../models/clue.model';
+import { Direction } from '../../models/direction.model';
+import { LightSegment, TraceResult } from '../../models/light-ray.model';
+
+const OFFSET = 0.09;
 
 @Component({
   selector: '[appLightPath]',
   standalone: true,
   template: `
-    @if (pathData(); as d) {
+    @for (d of paths(); track $index) {
       <svg:path
         [attr.d]="d"
         fill="none"
@@ -30,30 +34,50 @@ export class LightPathComponent {
   trace = input.required<TraceResult>();
   gridSize = input.required<number>();
 
-  pathData = computed(() => {
+  paths = computed(() => {
     const t = this.trace();
     const n = this.gridSize();
-    if (!t || t.segments.length === 0) return '';
+    if (!t || t.segments.length === 0) return [];
+
+    // Yellow traces: split into outgoing + return with perpendicular offset
+    if (t.status === ClueStatus.Yellow && t.segments.length >= 2) {
+      const mid = Math.floor(t.segments.length / 2);
+      const outgoing = this.buildPath(t.segments.slice(0, mid), n, OFFSET);
+      const ret = this.buildPath(t.segments.slice(mid), n, OFFSET);
+      return [outgoing, ret].filter(d => d !== '');
+    }
+
+    const single = this.buildPath(t.segments, n, 0);
+    return single ? [single] : [];
+  });
+
+  private buildPath(segments: LightSegment[], gridSize: number, offset: number): string {
+    if (segments.length === 0) return '';
 
     const points: { x: number; y: number }[] = [];
 
-    for (let i = 0; i < t.segments.length; i++) {
-      const seg = t.segments[i];
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+
       if (i === 0) {
-        // Clamp start point to grid edge (don't draw into clue cells)
-        points.push(this.clampToGridEdge(seg.fromRow, seg.fromCol, n));
+        const p = this.clampToGridEdge(seg.fromRow, seg.fromCol, gridSize);
+        if (offset) this.applyOffset(p, seg.direction, offset);
+        points.push(p);
       }
-      if (i < t.segments.length - 1) {
-        // Interior points: use cell center
-        points.push(this.cellCenter(seg.toRow, seg.toCol));
+
+      const isLast = i === segments.length - 1;
+      let p: { x: number; y: number };
+
+      if (!isLast) {
+        p = this.cellCenter(seg.toRow, seg.toCol);
+      } else if (seg.toRow < 0 || seg.toRow >= gridSize || seg.toCol < 0 || seg.toCol >= gridSize) {
+        p = this.clampToGridEdge(seg.toRow, seg.toCol, gridSize);
       } else {
-        // Last segment: clamp end point to grid edge if outside grid
-        if (seg.toRow < 0 || seg.toRow >= n || seg.toCol < 0 || seg.toCol >= n) {
-          points.push(this.clampToGridEdge(seg.toRow, seg.toCol, n));
-        } else {
-          points.push(this.cellCenter(seg.toRow, seg.toCol));
-        }
+        p = this.cellCenter(seg.toRow, seg.toCol);
       }
+
+      if (offset) this.applyOffset(p, seg.direction, offset);
+      points.push(p);
     }
 
     if (points.length < 2) return '';
@@ -63,16 +87,24 @@ export class LightPathComponent {
       d += ` L ${points[i].x} ${points[i].y}`;
     }
     return d;
-  });
+  }
+
+  /** Offset a point perpendicular to the travel direction */
+  private applyOffset(point: { x: number; y: number }, dir: Direction, amount: number): void {
+    switch (dir) {
+      case Direction.Right:  point.y += amount; break;
+      case Direction.Left:   point.y -= amount; break;
+      case Direction.Bottom: point.x -= amount; break;
+      case Direction.Top:    point.x += amount; break;
+    }
+  }
 
   private cellCenter(row: number, col: number): { x: number; y: number } {
     return { x: col + 0.5, y: row + 0.5 };
   }
 
-  /** Clamp an outside-grid point to the grid boundary */
   private clampToGridEdge(row: number, col: number, gridSize: number): { x: number; y: number } {
     const center = this.cellCenter(row, col);
-    // Clamp x to [0, gridSize] and y to [0, gridSize]
     return {
       x: Math.max(0, Math.min(gridSize, center.x)),
       y: Math.max(0, Math.min(gridSize, center.y)),

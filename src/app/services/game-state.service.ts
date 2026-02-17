@@ -1,10 +1,11 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Grid, cloneGrid, createEmptyGrid } from '../models/cell.model';
-import { EdgeSide } from '../models/clue.model';
+import { EdgeClue, EdgeSide } from '../models/clue.model';
 import { GameObjectType } from '../models/game-object.model';
-import { PuzzleDef } from '../models/game-state.model';
+import { GameSettings, PuzzleDef } from '../models/game-state.model';
 import { TraceResult } from '../models/light-ray.model';
 import { ClueValidatorService } from './clue-validator.service';
+import { LevelGeneratorService } from './level-generator.service';
 import { LightEngineService } from './light-engine.service';
 
 const PALETTE_ORDER: GameObjectType[] = [
@@ -24,6 +25,7 @@ const PALETTE_ORDER: GameObjectType[] = [
 export class GameStateService {
   private lightEngine = inject(LightEngineService);
   private clueValidator = inject(ClueValidatorService);
+  private levelGenerator = inject(LevelGeneratorService);
 
   // Core state
   readonly puzzle = signal<PuzzleDef | null>(null);
@@ -32,6 +34,7 @@ export class GameStateService {
   readonly remainingObjects = signal<Record<string, number>>({});
   readonly activeClueTrace = signal<TraceResult | null>(null);
   readonly activeClueIndex = signal<{ side: EdgeSide; index: number } | null>(null);
+  private lastSettings: GameSettings | null = null;
 
   // Computed
   readonly currentClues = computed<EdgeClue[]>(() => {
@@ -51,7 +54,8 @@ export class GameStateService {
     return Object.values(remaining).reduce((sum, v) => sum + v, 0);
   });
 
-  startGame(puzzle: PuzzleDef): void {
+  startGame(puzzle: PuzzleDef, settings?: GameSettings): void {
+    if (settings) this.lastSettings = settings;
     this.puzzle.set(puzzle);
     this.playerGrid.set(createEmptyGrid(puzzle.gridSize));
     this.remainingObjects.set({ ...puzzle.objectInventory });
@@ -61,6 +65,17 @@ export class GameStateService {
     // Auto-select first available palette object
     const firstType = PALETTE_ORDER.find(t => (puzzle.objectInventory[t] ?? 0) > 0);
     this.selectedObject.set(firstType ?? null);
+  }
+
+  newGame(): boolean {
+    if (!this.lastSettings) return false;
+    try {
+      const puzzle = this.levelGenerator.generate(this.lastSettings);
+      this.startGame(puzzle);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   selectObject(type: GameObjectType | null): void {

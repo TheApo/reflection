@@ -71,16 +71,24 @@ export function applyObject(type: GameObjectType, travelDir: Direction): Directi
       return ({ [D.Top]: D.Bottom, [D.Bottom]: D.Top, [D.Left]: D.Right, [D.Right]: D.Left } as Record<Direction, Direction>)[travelDir];
 
     case GameObjectType.TriangleBL: // ◣ legs: left+bottom, hypotenuse like \
-      return ({ [D.Right]: D.Bottom, [D.Top]: D.Left, [D.Left]: D.Left, [D.Bottom]: D.Bottom } as Record<Direction, Direction>)[travelDir];
+      // Right enters from left (leg) → 180° back; Top enters from bottom (leg) → 180° back
+      // Left enters from right (open) → hypotenuse \ → Top; Bottom enters from top (open) → hypotenuse \ → Right
+      return ({ [D.Right]: D.Left, [D.Top]: D.Bottom, [D.Left]: D.Top, [D.Bottom]: D.Right } as Record<Direction, Direction>)[travelDir];
 
     case GameObjectType.TriangleBR: // ◢ legs: right+bottom, hypotenuse like /
-      return ({ [D.Left]: D.Bottom, [D.Top]: D.Right, [D.Right]: D.Right, [D.Bottom]: D.Bottom } as Record<Direction, Direction>)[travelDir];
+      // Left enters from right (leg) → 180° back; Top enters from bottom (leg) → 180° back
+      // Right enters from left (open) → hypotenuse / → Top; Bottom enters from top (open) → hypotenuse / → Left
+      return ({ [D.Right]: D.Top, [D.Left]: D.Right, [D.Bottom]: D.Left, [D.Top]: D.Bottom } as Record<Direction, Direction>)[travelDir];
 
     case GameObjectType.TriangleTL: // ◤ legs: left+top, hypotenuse like /
-      return ({ [D.Right]: D.Top, [D.Bottom]: D.Left, [D.Left]: D.Left, [D.Top]: D.Top } as Record<Direction, Direction>)[travelDir];
+      // Right enters from left (leg) → 180° back; Bottom enters from top (leg) → 180° back
+      // Left enters from right (open) → hypotenuse / → Bottom; Top enters from bottom (open) → hypotenuse / → Right
+      return ({ [D.Right]: D.Left, [D.Bottom]: D.Top, [D.Left]: D.Bottom, [D.Top]: D.Right } as Record<Direction, Direction>)[travelDir];
 
     case GameObjectType.TriangleTR: // ◥ legs: right+top, hypotenuse like \
-      return ({ [D.Left]: D.Top, [D.Bottom]: D.Right, [D.Right]: D.Right, [D.Top]: D.Top } as Record<Direction, Direction>)[travelDir];
+      // Left enters from right (leg) → 180° back; Bottom enters from top (leg) → 180° back
+      // Right enters from left (open) → hypotenuse \ → Bottom; Top enters from bottom (open) → hypotenuse \ → Left
+      return ({ [D.Right]: D.Bottom, [D.Left]: D.Right, [D.Bottom]: D.Top, [D.Top]: D.Left } as Record<Direction, Direction>)[travelDir];
 
     case GameObjectType.Absorber:
       return null;

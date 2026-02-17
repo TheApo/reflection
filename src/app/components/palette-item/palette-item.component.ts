@@ -1,5 +1,5 @@
 import { Component, input, output, computed } from '@angular/core';
-import { GameObjectType, OBJECT_LABELS } from '../../models/game-object.model';
+import { GameObjectType } from '../../models/game-object.model';
 
 @Component({
   selector: 'app-palette-item',

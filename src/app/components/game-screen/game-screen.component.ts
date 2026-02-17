@@ -2,6 +2,7 @@ import { Component, inject, computed, OnInit, HostListener } from '@angular/core
 import { Router } from '@angular/router';
 import { GameObjectType } from '../../models/game-object.model';
 import { GameStateService } from '../../services/game-state.service';
+import { TranslationService } from '../../services/translation.service';
 import { GameBoardComponent } from '../game-board/game-board.component';
 import { ObjectPaletteComponent } from '../object-palette/object-palette.component';
 
@@ -17,11 +18,11 @@ import { ObjectPaletteComponent } from '../object-palette/object-palette.compone
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M15 18l-6-6 6-6"/>
           </svg>
-          Menu
+          {{ i18n.t().menu }}
         </button>
 
         @if (gameState.isSolved()) {
-          <div class="solved-badge">Solved!</div>
+          <div class="solved-badge">{{ i18n.t().solved }}</div>
         }
       </div>
 
@@ -41,24 +42,29 @@ import { ObjectPaletteComponent } from '../object-palette/object-palette.compone
         }
       </div>
 
-      <!-- Object palette -->
-      <app-object-palette
-        [items]="paletteItems()"
-        [selectedObject]="gameState.selectedObject()"
-        (objectSelected)="onObjectSelected($event)" />
-    </div>
+      <!-- Object palette (hidden when solved) -->
+      @if (!gameState.isSolved()) {
+        <app-object-palette
+          [items]="paletteItems()"
+          [selectedObject]="gameState.selectedObject()"
+          (objectSelected)="onObjectSelected($event)" />
+      }
 
-    <!-- Victory overlay -->
-    @if (gameState.isSolved()) {
-      <div class="victory-overlay" (click)="goBack()">
-        <div class="victory-content" (click)="$event.stopPropagation()">
-          <div class="victory-icon">&#10003;</div>
-          <h2>Puzzle Solved!</h2>
-          <p>All light paths are correct.</p>
-          <button class="play-again-btn" (click)="goBack()">Play Again</button>
+      <!-- Victory panel -->
+      @if (gameState.isSolved()) {
+        <div class="victory-panel">
+          <div class="victory-text">
+            <span class="victory-icon">&#10003;</span>
+            <span class="victory-title">{{ i18n.t().congratulations }}</span>
+          </div>
+          <p class="victory-sub">{{ i18n.t().victoryHint }}</p>
+          <div class="victory-buttons">
+            <button class="btn-new-level" (click)="onNewLevel()">{{ i18n.t().newLevel }}</button>
+            <button class="btn-back" (click)="goToMenu()">{{ i18n.t().mainMenu }}</button>
+          </div>
         </div>
-      </div>
-    }
+      }
+    </div>
   `,
   styles: [`
     @use 'styles/variables' as *;
@@ -75,9 +81,9 @@ import { ObjectPaletteComponent } from '../object-palette/object-palette.compone
     .top-bar {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       padding: 8px 12px;
       flex-shrink: 0;
+      position: relative;
     }
 
     .back-btn {
@@ -97,6 +103,9 @@ import { ObjectPaletteComponent } from '../object-palette/object-palette.compone
     }
 
     .solved-badge {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
       color: $color-accent;
       font-weight: 700;
       font-size: 1rem;
@@ -118,58 +127,74 @@ import { ObjectPaletteComponent } from '../object-palette/object-palette.compone
       overflow: hidden;
     }
 
-    .victory-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
+    .victory-panel {
+      flex-shrink: 0;
+      padding: 12px 16px;
+      text-align: center;
+      background: rgba(0, 212, 100, 0.08);
+      border-top: 1px solid rgba(0, 212, 100, 0.25);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .victory-text {
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 100;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .victory-content {
-      @include card;
-      text-align: center;
-      animation: scaleIn 0.3s ease;
-      max-width: 320px;
-      width: 90%;
-    }
-
-    @keyframes scaleIn {
-      from { opacity: 0; transform: scale(0.8); }
-      to { opacity: 1; transform: scale(1); }
+      gap: 8px;
     }
 
     .victory-icon {
-      font-size: 3rem;
+      font-size: 1.4rem;
       color: $color-accent;
-      margin-bottom: 8px;
     }
 
-    .victory-content h2 {
+    .victory-title {
+      font-size: 1.15rem;
+      font-weight: 700;
       color: $color-accent;
-      margin-bottom: 8px;
     }
 
-    .victory-content p {
+    .victory-sub {
+      font-size: 0.8rem;
       color: $color-text-muted;
-      margin-bottom: 16px;
+      margin: 4px 0 12px;
     }
 
-    .play-again-btn {
+    .victory-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn-new-level {
       @include glow-button($color-accent);
+      padding: 10px 24px;
+      font-size: 0.95rem;
+    }
+
+    .btn-back {
+      padding: 10px 24px;
+      font-size: 0.95rem;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      color: $color-text;
+      font-weight: 600;
+      transition: background 0.2s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
     }
   `],
 })
 export class GameScreenComponent implements OnInit {
   gameState = inject(GameStateService);
+  i18n = inject(TranslationService);
   private router = inject(Router);
 
   selectedRemainingCount = computed(() => {
@@ -226,6 +251,7 @@ export class GameScreenComponent implements OnInit {
   }
 
   onCellClick(event: { row: number; col: number }): void {
+    if (this.gameState.isSolved()) return;
     this.gameState.handleCellClick(event.row, event.col);
   }
 
@@ -235,6 +261,14 @@ export class GameScreenComponent implements OnInit {
 
   onObjectSelected(type: GameObjectType): void {
     this.gameState.selectObject(type);
+  }
+
+  onNewLevel(): void {
+    this.gameState.newGame();
+  }
+
+  goToMenu(): void {
+    this.router.navigate(['/']);
   }
 
   goBack(): void {
