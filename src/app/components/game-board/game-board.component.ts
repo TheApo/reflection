@@ -47,6 +47,8 @@ import { LightPathComponent } from '../light-path/light-path.component';
              [attr.transform]="'translate(' + col + ',' + row + ')'"
              [cellContent]="playerGrid()[row][col]"
              [ghostType]="getGhost(row, col)"
+             [hintType]="getHintType(row, col)"
+             [hintObject]="getHintObject(row, col)"
              (cellClick)="onCellClick(row, col)"
              (cellHover)="onCellHover(row, col, $event)" />
         }
@@ -127,6 +129,7 @@ export class GameBoardComponent {
   activeClueIndex = input<{ side: EdgeSide; index: number } | null>(null);
   selectedObject = input<GameObjectType | null>(null);
   remainingCount = input<number>(0);
+  hint = input<{ row: number; col: number; type: 'wrong' | 'missing'; object?: GameObjectType } | null>(null);
 
   cellClicked = output<{ row: number; col: number }>();
   clueClicked = output<{ side: EdgeSide; index: number }>();
@@ -149,6 +152,18 @@ export class GameBoardComponent {
   isClueActive(clue: EdgeClue): boolean {
     const active = this.activeClueIndex();
     return !!active && active.side === clue.side && active.index === clue.index;
+  }
+
+  getHintType(row: number, col: number): 'wrong' | 'missing' | null {
+    const h = this.hint();
+    if (!h || h.row !== row || h.col !== col) return null;
+    return h.type;
+  }
+
+  getHintObject(row: number, col: number): GameObjectType | null {
+    const h = this.hint();
+    if (!h || h.row !== row || h.col !== col || h.type !== 'missing') return null;
+    return h.object ?? null;
   }
 
   getGhost(row: number, col: number): GameObjectType | null {

@@ -426,14 +426,13 @@ export class GameSettingsComponent {
     const labels = this.i18n.t().objectLabels;
     const configs: ObjectCountConfig[] = [];
 
-    // Always-enabled types (min enforced)
+    // Always-enabled types (all min 0)
     for (const type of ALWAYS_ENABLED_TYPES) {
-      const min = (type === GameObjectType.Mirror45CW || type === GameObjectType.Mirror45CCW) ? 2 : 1;
       configs.push({
         type,
         label: labels[type],
         count: counts[type] ?? 0,
-        min,
+        min: 0,
         max: Math.floor(size * size * 0.1),
       });
     }
@@ -517,10 +516,24 @@ export class GameSettingsComponent {
 
   startGame(): void {
     this.error.set('');
+
+    const size = this.gridSize();
+    const minObjects = size;
+    const total = this.totalObjects();
+
+    if (total < minObjects) {
+      this.error.set(
+        this.i18n.t().minObjectsError
+          .replace('{0}', String(minObjects))
+          .replace(/\{1\}/g, String(size))
+      );
+      return;
+    }
+
     this.isGenerating.set(true);
 
     const settings: GameSettings = {
-      gridSize: this.gridSize(),
+      gridSize: size,
       enableBlock: this.enableBlock(),
       enableTriangle: this.enableTriangle(),
       enableAbsorber: this.enableAbsorber(),

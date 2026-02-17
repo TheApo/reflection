@@ -34,6 +34,7 @@ export class GameStateService {
   readonly remainingObjects = signal<Record<string, number>>({});
   readonly activeClueTrace = signal<TraceResult | null>(null);
   readonly activeClueIndex = signal<{ side: EdgeSide; index: number } | null>(null);
+  readonly hint = signal<{ row: number; col: number; type: 'wrong' | 'missing'; object?: GameObjectType } | null>(null);
   private lastSettings: GameSettings | null = null;
 
   // Computed
@@ -61,6 +62,7 @@ export class GameStateService {
     this.remainingObjects.set({ ...puzzle.objectInventory });
     this.activeClueTrace.set(null);
     this.activeClueIndex.set(null);
+    this.hint.set(null);
 
     // Auto-select first available palette object
     const firstType = PALETTE_ORDER.find(t => (puzzle.objectInventory[t] ?? 0) > 0);
@@ -86,7 +88,41 @@ export class GameStateService {
     }
   }
 
+  requestHint(): void {
+    const p = this.puzzle();
+    if (!p) return;
+    const grid = this.playerGrid();
+    const solution = p.solution;
+    const n = p.gridSize;
+
+    // Collect all wrong placements and missing objects
+    const wrong: { row: number; col: number }[] = [];
+    const missing: { row: number; col: number; object: GameObjectType }[] = [];
+
+    for (let r = 0; r < n; r++) {
+      for (let c = 0; c < n; c++) {
+        const player = grid[r][c];
+        const sol = solution[r][c];
+        if (player !== null && player !== sol) {
+          wrong.push({ row: r, col: c });
+        } else if (player === null && sol !== null) {
+          missing.push({ row: r, col: c, object: sol });
+        }
+      }
+    }
+
+    // Prefer showing a wrong placement, otherwise show a missing object
+    if (wrong.length > 0) {
+      const pick = wrong[Math.floor(Math.random() * wrong.length)];
+      this.hint.set({ row: pick.row, col: pick.col, type: 'wrong' });
+    } else if (missing.length > 0) {
+      const pick = missing[Math.floor(Math.random() * missing.length)];
+      this.hint.set({ row: pick.row, col: pick.col, type: 'missing', object: pick.object });
+    }
+  }
+
   handleCellClick(row: number, col: number): void {
+    this.hint.set(null);
     const grid = cloneGrid(this.playerGrid());
     const remaining = { ...this.remainingObjects() };
     const existing = grid[row][col];
@@ -108,6 +144,13 @@ export class GameStateService {
 
     this.playerGrid.set(grid);
     this.remainingObjects.set(remaining);
+
+    // Auto-switch to next available object if current is depleted
+    if (selected !== null && (remaining[selected] ?? 0) <= 0) {
+      const next = PALETTE_ORDER.find(t => (remaining[t] ?? 0) > 0);
+      this.selectedObject.set(next ?? null);
+    }
+
     this.refreshActiveTrace();
   }
 

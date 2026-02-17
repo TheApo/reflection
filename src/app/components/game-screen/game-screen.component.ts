@@ -37,8 +37,13 @@ import { ObjectPaletteComponent } from '../object-palette/object-palette.compone
             [activeClueIndex]="gameState.activeClueIndex()"
             [selectedObject]="gameState.selectedObject()"
             [remainingCount]="selectedRemainingCount()"
+            [hint]="gameState.hint()"
             (cellClicked)="onCellClick($event)"
             (clueClicked)="onClueClick($event)" />
+        }
+
+        @if (!gameState.isSolved()) {
+          <button class="hint-btn" (click)="onHint()">?</button>
         }
       </div>
 
@@ -125,6 +130,34 @@ import { ObjectPaletteComponent } from '../object-palette/object-palette.compone
       padding: 4px 8px;
       min-height: 0;
       overflow: hidden;
+      position: relative;
+    }
+
+    .hint-btn {
+      position: absolute;
+      bottom: 8px;
+      right: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      color: $color-text-muted;
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+      z-index: 10;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: $color-text;
+      }
+
+      &:active {
+        transform: scale(0.92);
+      }
     }
 
     .victory-panel {
@@ -261,6 +294,10 @@ export class GameScreenComponent implements OnInit {
 
   onObjectSelected(type: GameObjectType): void {
     this.gameState.selectObject(type);
+  }
+
+  onHint(): void {
+    this.gameState.requestHint();
   }
 
   onNewLevel(): void {

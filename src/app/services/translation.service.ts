@@ -32,6 +32,7 @@ interface Translations {
   totalObjects: string;
   generating: string;
   startGame: string;
+  minObjectsError: string;
 
   // Game screen
   menu: string;
@@ -72,6 +73,7 @@ const EN: Translations = {
   totalObjects: 'Total objects',
   generating: 'Generating...',
   startGame: 'Start Game',
+  minObjectsError: 'At least {0} objects required for a {1}\u00D7{1} grid.',
 
   menu: 'Menu',
   solved: 'Solved!',
@@ -121,6 +123,7 @@ const DE: Translations = {
   totalObjects: 'Objekte gesamt',
   generating: 'Wird generiert...',
   startGame: 'Spiel starten',
+  minObjectsError: 'Mindestens {0} Objekte f\u00FCr ein {1}\u00D7{1} Gitter erforderlich.',
 
   menu: 'Men\u00FC',
   solved: 'Gel\u00F6st!',
