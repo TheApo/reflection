@@ -1,0 +1,38 @@
+// Breakpoints
+$breakpoint-tablet: 600px;
+$breakpoint-desktop: 1024px;
+
+// Colors - Dark Theme
+$color-bg-dark: #0a0a1a;
+$color-bg-card: #1a1a2e;
+$color-bg-cell: #16213e;
+$color-bg-cell-hover: #1e2d4a;
+
+// Neon Accents
+$color-primary: #00d4ff;
+$color-secondary: #e040fb;
+$color-accent: #00ff88;
+$color-warning: #ffa500;
+$color-error: #ff1744;
+
+// Clue Status Colors
+$color-clue-green: #2e7d32;
+$color-clue-yellow: #f9a825;
+$color-clue-gray: #616161;
+
+// Text
+$color-text: #e0e0e0;
+$color-text-muted: #888;
+$color-text-dark: #1a1a2e;
+
+// UI
+$color-border: rgba(255, 255, 255, 0.1);
+$color-border-active: rgba(0, 212, 255, 0.5);
+
+// Font
+$font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+// Shadows
+$shadow-glow-primary: 0 0 10px rgba(0, 212, 255, 0.4);
+$shadow-glow-accent: 0 0 10px rgba(0, 255, 136, 0.4);
+$shadow-glow-secondary: 0 0 10px rgba(224, 64, 251, 0.4);

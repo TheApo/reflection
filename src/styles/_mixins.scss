@@ -1,0 +1,39 @@
+@use 'variables' as *;
+
+@mixin tablet {
+  @media (min-width: $breakpoint-tablet) { @content; }
+}
+
+@mixin desktop {
+  @media (min-width: $breakpoint-desktop) { @content; }
+}
+
+@mixin glow-button($color: $color-primary) {
+  background: transparent;
+  border: 2px solid $color;
+  color: $color;
+  padding: 12px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: $font-family;
+
+  &:hover, &:active {
+    background: rgba($color, 0.15);
+    box-shadow: 0 0 20px rgba($color, 0.4);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+@mixin card {
+  background: $color-bg-card;
+  border-radius: 12px;
+  border: 1px solid $color-border;
+  padding: 16px;
+}
