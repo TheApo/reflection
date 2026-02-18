@@ -1,6 +1,6 @@
-import { Component, inject, computed, OnInit, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, computed, HostListener } from '@angular/core';
 import { GameObjectType } from '../../models/game-object.model';
+import { NavigationService } from '../../services/navigation.service';
 import { GameStateService } from '../../services/game-state.service';
 import { TranslationService } from '../../services/translation.service';
 import { GameBoardComponent } from '../game-board/game-board.component';
@@ -226,10 +226,10 @@ import { ObjectPaletteComponent } from '../object-palette/object-palette.compone
     }
   `],
 })
-export class GameScreenComponent implements OnInit {
+export class GameScreenComponent {
   gameState = inject(GameStateService);
   i18n = inject(TranslationService);
-  private router = inject(Router);
+  private nav = inject(NavigationService);
 
   selectedRemainingCount = computed(() => {
     const selected = this.gameState.selectedObject();
@@ -260,12 +260,6 @@ export class GameScreenComponent implements OnInit {
         count: remaining[type] ?? 0,
       }));
   });
-
-  ngOnInit(): void {
-    if (!this.gameState.puzzle()) {
-      this.router.navigate(['/']);
-    }
-  }
 
   @HostListener('wheel', ['$event'])
   onWheel(event: WheelEvent): void {
@@ -306,10 +300,10 @@ export class GameScreenComponent implements OnInit {
   }
 
   goToMenu(): void {
-    this.router.navigate(['/']);
+    this.nav.go('menu');
   }
 
   goBack(): void {
-    this.router.navigate(['/settings']);
+    this.nav.go('settings');
   }
 }

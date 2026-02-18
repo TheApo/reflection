@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { GameObjectType, ALWAYS_ENABLED_TYPES, TRIANGLE_TYPES, BLOCK_TYPES, ABSORBER_TYPES } from '../../models/game-object.model';
+import { NavigationService } from '../../services/navigation.service';
 import { GameSettings, getDefaultObjectCounts } from '../../models/game-state.model';
 import { GameStateService } from '../../services/game-state.service';
 import { LevelGeneratorService } from '../../services/level-generator.service';
@@ -465,7 +465,7 @@ interface ObjectCountConfig {
   `],
 })
 export class GameSettingsComponent {
-  private router = inject(Router);
+  private nav = inject(NavigationService);
   private gameState = inject(GameStateService);
   private levelGenerator = inject(LevelGeneratorService);
   i18n = inject(TranslationService);
@@ -621,7 +621,7 @@ export class GameSettingsComponent {
   }
 
   goBack(): void {
-    this.router.navigate(['/']);
+    this.nav.go('menu');
   }
 
   startGame(): void {
@@ -655,7 +655,7 @@ export class GameSettingsComponent {
         const puzzle = this.levelGenerator.generate(settings);
         this.gameState.startGame(puzzle, settings);
         this.isGenerating.set(false);
-        this.router.navigate(['/play']);
+        this.nav.go('play');
       } catch (e: any) {
         this.isGenerating.set(false);
         this.error.set(e.message || 'Failed to generate puzzle.');

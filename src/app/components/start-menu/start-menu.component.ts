@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationService } from '../../services/navigation.service';
 import { TranslationService } from '../../services/translation.service';
 
 @Component({
@@ -329,10 +329,10 @@ import { TranslationService } from '../../services/translation.service';
   `],
 })
 export class StartMenuComponent {
-  private router = inject(Router);
+  private nav = inject(NavigationService);
   i18n = inject(TranslationService);
 
   onPlay(): void {
-    this.router.navigate(['/settings']);
+    this.nav.go('settings');
   }
 }
