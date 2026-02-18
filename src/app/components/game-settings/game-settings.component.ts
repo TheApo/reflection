@@ -58,21 +58,6 @@ interface ObjectCountConfig {
           <div class="toggle-row">
             <div class="toggle-info">
               <svg viewBox="0 0 1 1" width="28" height="28">
-                <rect x="0.2" y="0.2" width="0.6" height="0.6" rx="0.06" fill="#b0bec5" />
-              </svg>
-              <span>{{ i18n.t().block }}</span>
-            </div>
-            <label class="toggle">
-              <input type="checkbox"
-                [ngModel]="enableBlock()"
-                (ngModelChange)="enableBlock.set($event); recalcCounts()" />
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-
-          <div class="toggle-row">
-            <div class="toggle-info">
-              <svg viewBox="0 0 1 1" width="28" height="28">
                 <polygon points="0.15,0.15 0.15,0.85 0.85,0.85" fill="#e040fb" fill-opacity="0.8" />
               </svg>
               <span>{{ i18n.t().triangles }}</span>
@@ -84,21 +69,6 @@ interface ObjectCountConfig {
               <span class="toggle-slider"></span>
             </label>
           </div>
-
-          <div class="toggle-row">
-            <div class="toggle-info">
-              <svg viewBox="0 0 1 1" width="28" height="28">
-                <circle cx="0.5" cy="0.5" r="0.3" fill="#1a1a2e" stroke="#b0bec5" stroke-width="0.05" />
-              </svg>
-              <span>{{ i18n.t().absorber }}</span>
-            </div>
-            <label class="toggle">
-              <input type="checkbox"
-                [ngModel]="enableAbsorber()"
-                (ngModelChange)="enableAbsorber.set($event); recalcCounts()" />
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
         </div>
 
         <!-- Object Counts -->
@@ -106,7 +76,46 @@ interface ObjectCountConfig {
           <h3 class="section-title">{{ i18n.t().objectCounts }}</h3>
           @for (config of visibleObjectConfigs(); track config.type) {
             <div class="count-row">
-              <span class="count-label">{{ config.label }}</span>
+              <div class="count-label">
+                <svg viewBox="0 0 1 1" width="24" height="24" class="obj-icon"
+                     xmlns="http://www.w3.org/2000/svg">
+                  @switch (config.type) {
+                    @case ('mirror45cw') {
+                      <line x1="0.2" y1="0.2" x2="0.8" y2="0.8" stroke="#00d4ff" stroke-width="0.1" stroke-linecap="round"/>
+                    }
+                    @case ('mirror45ccw') {
+                      <line x1="0.8" y1="0.2" x2="0.2" y2="0.8" stroke="#00d4ff" stroke-width="0.1" stroke-linecap="round"/>
+                    }
+                    @case ('onewayV') {
+                      <line x1="0.35" y1="0.15" x2="0.35" y2="0.85" stroke="#ffa500" stroke-width="0.08" stroke-linecap="round"/>
+                      <line x1="0.65" y1="0.15" x2="0.65" y2="0.85" stroke="#ffa500" stroke-width="0.08" stroke-linecap="round"/>
+                    }
+                    @case ('onewayH') {
+                      <line x1="0.15" y1="0.35" x2="0.85" y2="0.35" stroke="#ffa500" stroke-width="0.08" stroke-linecap="round"/>
+                      <line x1="0.15" y1="0.65" x2="0.85" y2="0.65" stroke="#ffa500" stroke-width="0.08" stroke-linecap="round"/>
+                    }
+                    @case ('block') {
+                      <rect x="0.2" y="0.2" width="0.6" height="0.6" rx="0.06" fill="#b0bec5"/>
+                    }
+                    @case ('triangleBL') {
+                      <polygon points="0.15,0.15 0.15,0.85 0.85,0.85" fill="#e040fb" fill-opacity="0.8"/>
+                    }
+                    @case ('triangleBR') {
+                      <polygon points="0.85,0.15 0.15,0.85 0.85,0.85" fill="#e040fb" fill-opacity="0.8"/>
+                    }
+                    @case ('triangleTL') {
+                      <polygon points="0.15,0.15 0.85,0.15 0.15,0.85" fill="#e040fb" fill-opacity="0.8"/>
+                    }
+                    @case ('triangleTR') {
+                      <polygon points="0.15,0.15 0.85,0.15 0.85,0.85" fill="#e040fb" fill-opacity="0.8"/>
+                    }
+                    @case ('absorber') {
+                      <circle cx="0.5" cy="0.5" r="0.3" fill="#1a1a2e" stroke="#b0bec5" stroke-width="0.05"/>
+                    }
+                  }
+                </svg>
+                <span>{{ config.label }}</span>
+              </div>
               <div class="stepper">
                 <button class="step-btn" (click)="decrementCount(config.type)"
                   [disabled]="config.count <= config.min">−</button>
@@ -119,7 +128,17 @@ interface ObjectCountConfig {
 
           <div class="total-row">
             <span>{{ i18n.t().totalObjects }}</span>
-            <span class="total-value">{{ totalObjects() }}</span>
+            <div class="total-actions">
+              <button class="random-btn" (click)="randomizeCounts()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <circle cx="12" cy="12" r="1.5"/>
+                  <circle cx="15.5" cy="15.5" r="1.5"/>
+                </svg>
+              </button>
+              <span class="total-value">{{ totalObjects() }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -147,14 +166,15 @@ interface ObjectCountConfig {
       height: 100dvh;
       display: flex;
       flex-direction: column;
-      background: $color-bg-dark;
       overflow: hidden;
     }
 
     .fixed-header {
       flex-shrink: 0;
       padding: 12px 16px;
-      background: $color-bg-dark;
+      background: rgba(10, 10, 26, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       z-index: 10;
     }
@@ -196,7 +216,9 @@ interface ObjectCountConfig {
     .fixed-footer {
       flex-shrink: 0;
       padding: 12px 16px;
-      background: $color-bg-dark;
+      background: rgba(10, 10, 26, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       z-index: 10;
 
@@ -335,8 +357,17 @@ interface ObjectCountConfig {
     }
 
     .count-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-size: 0.9rem;
       color: $color-text;
+    }
+
+    .obj-icon {
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
     }
 
     .stepper {
@@ -379,9 +410,38 @@ interface ObjectCountConfig {
       color: $color-text-muted;
     }
 
+    .total-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .random-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: $color-text-muted;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: $color-primary;
+      }
+
+      &:active {
+        transform: scale(0.92);
+      }
+    }
+
     .total-value {
       font-weight: 700;
       color: $color-primary;
+      min-width: 24px;
+      text-align: right;
     }
 
     .error-msg {
@@ -437,35 +497,31 @@ export class GameSettingsComponent {
       });
     }
 
-    // Block - min 0 (optional)
-    if (this.enableBlock()) {
-      for (const type of BLOCK_TYPES) {
-        configs.push({
-          type,
-          label: labels[type],
-          count: counts[type] ?? 0,
-          min: 0,
-          max: Math.max(1, Math.floor(size * size * 0.05)),
-        });
-      }
+    // Block (always enabled)
+    for (const type of BLOCK_TYPES) {
+      configs.push({
+        type,
+        label: labels[type],
+        count: counts[type] ?? 0,
+        min: 0,
+        max: Math.max(1, Math.floor(size * size * 0.05)),
+      });
     }
 
-    // Triangles - min 0 (optional)
+    // Absorber (always enabled)
+    for (const type of ABSORBER_TYPES) {
+      configs.push({
+        type,
+        label: labels[type],
+        count: counts[type] ?? 0,
+        min: 0,
+        max: Math.max(1, Math.floor(size * size * 0.05)),
+      });
+    }
+
+    // Triangles (optional, after absorber)
     if (this.enableTriangle()) {
       for (const type of TRIANGLE_TYPES) {
-        configs.push({
-          type,
-          label: labels[type],
-          count: counts[type] ?? 0,
-          min: 0,
-          max: Math.max(1, Math.floor(size * size * 0.05)),
-        });
-      }
-    }
-
-    // Absorber - min 0 (optional)
-    if (this.enableAbsorber()) {
-      for (const type of ABSORBER_TYPES) {
         configs.push({
           type,
           label: labels[type],
@@ -508,6 +564,60 @@ export class GameSettingsComponent {
       counts[type] = current - 1;
       this.objectCounts.set(counts);
     }
+  }
+
+  randomizeCounts(): void {
+    const size = this.gridSize();
+    const configs = this.visibleObjectConfigs();
+    const counts = {} as Record<GameObjectType, number>;
+
+    // Init all types to 0
+    for (const t of Object.values(GameObjectType)) {
+      counts[t as GameObjectType] = 0;
+    }
+
+    const triangleConfigs = configs.filter(c => TRIANGLE_TYPES.includes(c.type));
+    const otherConfigs = configs.filter(c => !TRIANGLE_TYPES.includes(c.type));
+
+    let total = 0;
+
+    // Triangles: max 2 types, total count max 2
+    if (triangleConfigs.length > 0) {
+      const shuffled = [...triangleConfigs].sort(() => Math.random() - 0.5);
+      const style = Math.floor(Math.random() * 3);
+      if (style === 0) {
+        counts[shuffled[0].type] = Math.min(2, shuffled[0].max);
+      } else if (style === 1 && shuffled.length > 1) {
+        counts[shuffled[0].type] = Math.min(1, shuffled[0].max);
+        counts[shuffled[1].type] = Math.min(1, shuffled[1].max);
+      } else {
+        counts[shuffled[0].type] = Math.min(1, shuffled[0].max);
+      }
+      total = triangleConfigs.reduce((s, c) => s + counts[c.type], 0);
+    }
+
+    // Give each non-triangle type at least 1
+    if (otherConfigs.length > 0) {
+      for (const c of otherConfigs) {
+        counts[c.type] = 1;
+        total++;
+      }
+
+      // Target: between gridSize and gridSize * 1.4
+      const target = size + Math.floor(Math.random() * Math.ceil(size * 0.4));
+
+      let safety = 0;
+      while (total < target && safety < 300) {
+        const c = otherConfigs[Math.floor(Math.random() * otherConfigs.length)];
+        if (counts[c.type] < c.max) {
+          counts[c.type]++;
+          total++;
+        }
+        safety++;
+      }
+    }
+
+    this.objectCounts.set(counts);
   }
 
   goBack(): void {

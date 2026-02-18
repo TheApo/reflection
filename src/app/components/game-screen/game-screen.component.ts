@@ -79,7 +79,6 @@ import { ObjectPaletteComponent } from '../object-palette/object-palette.compone
       display: flex;
       flex-direction: column;
       height: 100dvh;
-      background: $color-bg-dark;
       overflow: hidden;
     }
 
@@ -165,6 +164,8 @@ import { ObjectPaletteComponent } from '../object-palette/object-palette.compone
       padding: 12px 16px;
       text-align: center;
       background: rgba(0, 212, 100, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-top: 1px solid rgba(0, 212, 100, 0.25);
       animation: slideUp 0.3s ease;
     }

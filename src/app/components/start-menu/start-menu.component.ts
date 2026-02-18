@@ -153,7 +153,6 @@ import { TranslationService } from '../../services/translation.service';
       height: 100dvh;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      background: $color-bg-dark;
     }
 
     .content {

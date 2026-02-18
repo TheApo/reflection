@@ -27,3 +27,18 @@
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
 }
+
+@keyframes drift-stars-1 {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-120px, -80px); }
+}
+
+@keyframes drift-stars-2 {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(80px, -120px); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}

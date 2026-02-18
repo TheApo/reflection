@@ -1,6 +1,24 @@
+@use 'sass:math';
+@use 'sass:list';
 @use 'styles/variables' as *;
 @use 'styles/animations';
 
+// --- Star field generation ---
+@function star-shadows($count, $spread: 2500) {
+  $shadows: ();
+  @for $i from 1 through $count {
+    $x: math.random($spread);
+    $y: math.random($spread);
+    $o: math.div(math.random(40) + 25, 100);
+    $shadows: list.append($shadows, #{$x}px #{$y}px 1px rgba(255, 255, 255, $o), comma);
+  }
+  @return $shadows;
+}
+
+$stars-small: star-shadows(180, 2500);
+$stars-bright: star-shadows(45, 2500);
+
+// --- Reset ---
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -11,7 +29,6 @@ html, body {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background: $color-bg-dark;
   color: $color-text;
   font-family: $font-family;
   -webkit-font-smoothing: antialiased;
@@ -22,12 +39,51 @@ html, body {
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
+html {
+  background: $color-bg-dark;
+}
+
 body {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  background:
+    radial-gradient(ellipse at 15% 50%, rgba(20, 25, 80, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(50, 15, 60, 0.22) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 90%, rgba(15, 40, 70, 0.22) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 60%, rgba(10, 30, 60, 0.15) 0%, transparent 35%),
+    transparent;
+
+  // Star layers
+  &::before,
+  &::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  &::before {
+    width: 2px;
+    height: 2px;
+    box-shadow: $stars-small;
+    animation: drift-stars-1 38s linear infinite alternate;
+    will-change: transform;
+  }
+
+  &::after {
+    width: 3px;
+    height: 3px;
+    box-shadow: $stars-bright;
+    animation:
+      drift-stars-2 52s linear infinite alternate,
+      twinkle 8s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
 }
 
 a {

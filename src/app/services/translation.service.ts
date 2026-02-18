@@ -83,15 +83,15 @@ const EN: Translations = {
   mainMenu: 'Main Menu',
 
   objectLabels: {
-    [GameObjectType.Mirror45CW]: 'Mirror \\',
-    [GameObjectType.Mirror45CCW]: 'Mirror /',
-    [GameObjectType.OneWayVertical]: 'One-Way ||',
-    [GameObjectType.OneWayHorizontal]: 'One-Way =',
+    [GameObjectType.Mirror45CW]: 'Mirror',
+    [GameObjectType.Mirror45CCW]: 'Mirror',
+    [GameObjectType.OneWayVertical]: 'One-Way',
+    [GameObjectType.OneWayHorizontal]: 'One-Way',
     [GameObjectType.Block]: 'Block',
-    [GameObjectType.TriangleBL]: 'Triangle \u25E3',
-    [GameObjectType.TriangleBR]: 'Triangle \u25E2',
-    [GameObjectType.TriangleTL]: 'Triangle \u25E4',
-    [GameObjectType.TriangleTR]: 'Triangle \u25E5',
+    [GameObjectType.TriangleBL]: 'Triangle',
+    [GameObjectType.TriangleBR]: 'Triangle',
+    [GameObjectType.TriangleTL]: 'Triangle',
+    [GameObjectType.TriangleTR]: 'Triangle',
     [GameObjectType.Absorber]: 'Absorber',
   },
 };
@@ -133,27 +133,43 @@ const DE: Translations = {
   mainMenu: 'Hauptmen\u00FC',
 
   objectLabels: {
-    [GameObjectType.Mirror45CW]: 'Spiegel \\',
-    [GameObjectType.Mirror45CCW]: 'Spiegel /',
-    [GameObjectType.OneWayVertical]: 'Einweg ||',
-    [GameObjectType.OneWayHorizontal]: 'Einweg =',
+    [GameObjectType.Mirror45CW]: 'Spiegel',
+    [GameObjectType.Mirror45CCW]: 'Spiegel',
+    [GameObjectType.OneWayVertical]: 'Einweg',
+    [GameObjectType.OneWayHorizontal]: 'Einweg',
     [GameObjectType.Block]: 'Block',
-    [GameObjectType.TriangleBL]: 'Dreieck \u25E3',
-    [GameObjectType.TriangleBR]: 'Dreieck \u25E2',
-    [GameObjectType.TriangleTL]: 'Dreieck \u25E4',
-    [GameObjectType.TriangleTR]: 'Dreieck \u25E5',
+    [GameObjectType.TriangleBL]: 'Dreieck',
+    [GameObjectType.TriangleBR]: 'Dreieck',
+    [GameObjectType.TriangleTL]: 'Dreieck',
+    [GameObjectType.TriangleTR]: 'Dreieck',
     [GameObjectType.Absorber]: 'Absorber',
   },
 };
 
 const LANG_MAP: Record<Lang, Translations> = { en: EN, de: DE };
 
+function detectLang(): Lang {
+  const cookie = document.cookie.split('; ').find(c => c.startsWith('lang='));
+  if (cookie) {
+    const val = cookie.split('=')[1];
+    if (val === 'de' || val === 'en') return val;
+  }
+  const browserLang = navigator.language || '';
+  return browserLang.startsWith('de') ? 'de' : 'en';
+}
+
+function saveLang(lang: Lang): void {
+  document.cookie = `lang=${lang};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TranslationService {
-  readonly lang = signal<Lang>('en');
+  readonly lang = signal<Lang>(detectLang());
   readonly t = computed(() => LANG_MAP[this.lang()]);
 
   toggleLang(): void {
-    this.lang.set(this.lang() === 'en' ? 'de' : 'en');
+    const next: Lang = this.lang() === 'en' ? 'de' : 'en';
+    this.lang.set(next);
+    saveLang(next);
   }
 }
