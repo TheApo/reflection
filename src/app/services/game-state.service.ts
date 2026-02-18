@@ -129,9 +129,12 @@ export class GameStateService {
     const selected = this.selectedObject();
 
     if (existing !== null) {
-      // Cell is occupied - always just remove it
+      // Cell is occupied - remove and auto-select removed type
       remaining[existing] = (remaining[existing] ?? 0) + 1;
       grid[row][col] = null;
+      if (selected === null) {
+        this.selectedObject.set(existing);
+      }
     } else if (selected !== null) {
       // Cell empty, place selected object if available
       const count = remaining[selected] ?? 0;
