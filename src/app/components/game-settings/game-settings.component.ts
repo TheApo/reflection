@@ -470,12 +470,13 @@ export class GameSettingsComponent {
   private levelGenerator = inject(LevelGeneratorService);
   i18n = inject(TranslationService);
 
-  gridSize = signal(8);
+  private defaultSize = window.matchMedia('(max-width: 600px)').matches ? 6 : 8;
+  gridSize = signal(this.defaultSize);
   enableBlock = signal(true);
   enableTriangle = signal(false);
   enableAbsorber = signal(true);
   objectCounts = signal<Record<GameObjectType, number>>(
-    getDefaultObjectCounts(8, true, false, true)
+    getDefaultObjectCounts(this.defaultSize, true, false, true)
   );
   error = signal('');
   isGenerating = signal(false);

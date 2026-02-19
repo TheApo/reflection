@@ -98,7 +98,7 @@ const EN: Translations = {
 
 const DE: Translations = {
   title: 'Reflection',
-  subtitle: 'Ein Licht-Puzzle-Spiel',
+  subtitle: 'Lenke das Licht. Knack die Logik.',
   play: 'Spielen',
   howToPlay: 'Spielanleitung',
   introDesc: 'Platziere Objekte auf dem Gitter, sodass die Lichtstrahlen zu den Zahlen am Rand passen.',

@@ -261,6 +261,15 @@ export class GameScreenComponent {
       }));
   });
 
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'r' || event.key === 'R') {
+      this.gameState.restartLevel();
+    } else if (event.key === 'n' || event.key === 'N') {
+      this.gameState.newGame();
+    }
+  }
+
   @HostListener('wheel', ['$event'])
   onWheel(event: WheelEvent): void {
     event.preventDefault();

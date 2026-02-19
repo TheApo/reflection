@@ -69,6 +69,11 @@ export class GameStateService {
     this.selectedObject.set(firstType ?? null);
   }
 
+  restartLevel(): void {
+    const p = this.puzzle();
+    if (p) this.startGame(p);
+  }
+
   newGame(): boolean {
     if (!this.lastSettings) return false;
     try {
@@ -81,11 +86,8 @@ export class GameStateService {
   }
 
   selectObject(type: GameObjectType | null): void {
-    if (this.selectedObject() === type) {
-      this.selectedObject.set(null);
-    } else {
-      this.selectedObject.set(type);
-    }
+    if (type === null) return;
+    this.selectedObject.set(type);
   }
 
   requestHint(): void {
@@ -129,12 +131,10 @@ export class GameStateService {
     const selected = this.selectedObject();
 
     if (existing !== null) {
-      // Cell is occupied - remove and auto-select removed type
+      // Cell is occupied - remove and select removed type
       remaining[existing] = (remaining[existing] ?? 0) + 1;
       grid[row][col] = null;
-      if (selected === null) {
-        this.selectedObject.set(existing);
-      }
+      this.selectedObject.set(existing);
     } else if (selected !== null) {
       // Cell empty, place selected object if available
       const count = remaining[selected] ?? 0;
