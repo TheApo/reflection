@@ -11,9 +11,15 @@ export class ClueValidatorService {
     // First pass: validate each clue individually
     const clues = solutionClues.map(clue => {
       const result = this.lightEngine.trace(playerGrid, clue.side, clue.index, gridSize);
-      const isCorrect =
+      let isCorrect =
         result.totalDistance === clue.distance &&
         result.status === clue.status;
+
+      // For green clues, also verify light exits at the correct position
+      if (isCorrect && clue.status === ClueStatus.Green && clue.exitSide != null) {
+        isCorrect = result.exitSide === clue.exitSide && result.exitIndex === clue.exitIndex;
+      }
+
       return { ...clue, isCorrect };
     });
 
