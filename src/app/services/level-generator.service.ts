@@ -66,6 +66,12 @@ export class LevelGeneratorService {
       return null;
     }
 
+    // Reject if any single object is redundant
+    if (this.hasRedundantObject(grid, clues, gridSize)) {
+      console.log('[Generator] Level übersprungen: redundantes Objekt gefunden');
+      return null;
+    }
+
     // Build inventory
     const objectInventory: Record<string, number> = {};
     for (const obj of pool) {
@@ -119,6 +125,30 @@ export class LevelGeneratorService {
     }
 
     return clues;
+  }
+
+  private hasRedundantObject(grid: Grid, clues: EdgeClue[], gridSize: number): boolean {
+    for (let r = 0; r < gridSize; r++) {
+      for (let c = 0; c < gridSize; c++) {
+        const obj = grid[r][c];
+        if (obj === null) continue;
+
+        // Temporarily remove the object
+        grid[r][c] = null;
+
+        // Check if all clues still match
+        const allMatch = clues.every(clue => {
+          const result = this.lightEngine.trace(grid, clue.side, clue.index, gridSize);
+          return result.totalDistance === clue.distance && result.status === clue.status;
+        });
+
+        // Restore the object
+        grid[r][c] = obj;
+
+        if (allMatch) return true;
+      }
+    }
+    return false;
   }
 
   private shuffle<T>(array: T[]): void {
